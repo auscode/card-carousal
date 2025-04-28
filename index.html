@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+  .container {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    top: 50%;
+    left: 50%;
+    justify-content: center;
+    align-items: center;
+    transform: translate(-50%, -50%);
+  }
+  .box {
+    position: absolute;
+    display: inline-block;
+    height: 12em;
+    width: 12em;
+    transition: all 0.5s ease;
+  }
+  .box1 { height:8em; width:8em; z-index:0; margin-left:0em; }
+  .box2 { height:10em; width:10em; z-index:1; margin-left:8em; }
+  .box3 { height:12em; width:12em; z-index:10; margin-left:16em; box-shadow: 0px 0px 2rem 0px #888888; }
+  .box4 { height:10em; width:10em; z-index:1; margin-left:24em; }
+  .box5 { height:8em; width:8em; z-index:0; margin-left:32em; }
+</style>
+</head>
+<body>
+
+<div class="container" id="container">
+  <div class="box box1" style="background-color: lightcoral;">1</div>
+  <div class="box box2" style="background-color: blue;">2</div>
+  <div class="box box3" style="background-color: green;">3</div>
+  <div class="box box4" style="background-color: violet; text-align:right;">4</div>
+  <div class="box box5" style="background-color: orange; text-align:right;">5</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const container = document.getElementById('container');
+
+  function updateBoxClasses() {
+    const boxes = Array.from(container.children);
+    boxes.forEach((box, idx) => {
+      box.className = 'box';
+      if (idx === 0) box.classList.add('box1');
+      else if (idx === 1) box.classList.add('box2');
+      else if (idx === 2) box.classList.add('box3');
+      else if (idx === 3) box.classList.add('box4');
+      else if (idx === 4) box.classList.add('box5');
+    });
+  }
+
+  function moveBoxes(steps) {
+    const boxes = Array.from(container.children);
+
+    boxes.forEach(box => {
+      box.style.transition = 'transform 0.5s ease';
+      
+    });
+
+    setTimeout(() => {
+      // Reorder boxes in DOM
+      if (steps > 0) {
+        for (let i = 0; i < steps; i++) {
+          container.insertBefore(container.lastElementChild, container.firstElementChild);
+        }
+      } else {
+        for (let i = 0; i < Math.abs(steps); i++) {
+          container.appendChild(container.firstElementChild);
+        }
+      }
+
+      // Reset all transforms
+      boxes.forEach(box => {
+        box.style.transition = 'none';
+        box.style.transform = 'translateX(0)';
+      });
+
+      // Force reflow
+      void container.offsetWidth;
+
+      // Re-enable transition
+      boxes.forEach(box => {
+        box.style.transition = 'all 0.5s ease';
+      });
+
+      updateBoxClasses();
+    }, 500);
+  }
+
+  container.addEventListener('click', function (e) {
+    const clickedBox = e.target.closest('.box');
+    if (!clickedBox) return;
+
+    const boxes = Array.from(container.children);
+    const clickedIndex = boxes.indexOf(clickedBox);
+    const centerIndex = boxes.findIndex(box => box.classList.contains('box3'));
+
+    if (clickedIndex === centerIndex) return;
+
+    const shift = centerIndex - clickedIndex;
+
+    moveBoxes(shift);
+  });
+});
+</script>
+
+</body>
+</html>
